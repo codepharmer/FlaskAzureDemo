@@ -19,7 +19,7 @@ def default():
 @app.route("/trains_approaching/<station_id>")
 def show_trains_approaching_station(station_id):
     train_info = get_trains_approaching(station_id)
-    return train_info.json()
+    return train_info.text
 
 @app.route("/all_stations/")
 def show_all_stations():
