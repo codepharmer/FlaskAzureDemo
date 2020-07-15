@@ -1,10 +1,10 @@
 from flask import Flask
 import requests
 import json
-
+import os
 app = Flask(__name__)
 
-apiKey = '9de8f3b1-1701-4229-8ebc-346914043f4a'
+apiKey = os.getenv('API_TOKEN')
 
 def get_trains_approaching(station_id):
     return requests.get(f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/trains/{station_id}/{apiKey}/")
