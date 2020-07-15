@@ -2,15 +2,19 @@ from flask import Flask
 import requests
 import json
 import os
-app = Flask(__name__)
 
-apiKey = os.getenv('API_TOKEN')
+app = Flask(__name__)
+apiKey = os.getenv("API_TOKEN")
 
 def get_trains_approaching(station_id):
     return requests.get(f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/trains/{station_id}/{apiKey}/")
 
 def get_all_stations():
     return requests.get(f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/stations/{apiKey}/")
+
+@app.route("/")
+def default():
+    return "Default"
 
 @app.route("/trains_approaching/<station_id>")
 def show_trains_approaching_station(station_id):
