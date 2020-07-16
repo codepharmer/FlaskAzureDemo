@@ -5,25 +5,27 @@ import os
 
 app = Flask(__name__)
 apiKey = os.getenv("API_TOKEN")
-
 def get_trains_approaching(station_id):
     return requests.get(f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/trains/{station_id}/{apiKey}/")
 
 def get_all_stations():
     return requests.get(f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/stations/{apiKey}/")
 
+def get_train_info(train_number, station_id):
+    return requests.get(f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/train/{train_number}/{station_id}/{apiKey}/")
+
 @app.route("/")
 def default():
     return "Default"
 
-@app.route("/trains_approaching/<station_id>/")
+@app.route("/trains-approaching/<station_id>/")
 def show_trains_approaching_station(station_id):
     train_info = get_trains_approaching(station_id)
     return train_info.text
 
-@app.route("/all_stations/")
+@app.route("/all-stations/")
 def show_all_stations():
-    all_trains =get_all_stations()
+    all_trains = get_all_stations()
     station_names = []
     for listitem in all_trains.json():
         station_item = {
@@ -42,8 +44,13 @@ def show_all_stations():
 #     "Location_Index": 162,
 #     "Location_Id": 168
 #   },
-        station_names.append(station_item)
+    station_names.append(station_item)
     return json.dumps(station_names)
-
+#ghfhgfhf
+@app.route("/current-train-info/<train_number>/<station_id>/")
+def show_train_info(train_number, station_id):
+    train_info = get_train_info(train_number, station_id)
+    return train_info.text
+#t
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8080, debug=True)
