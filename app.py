@@ -5,7 +5,7 @@ import os
 
 from expiringdict import ExpiringDict
 
-cache = ExpiringDict(max_len=100, max_age_seconds=60)
+cache = ExpiringDict(max_len=150, max_age_seconds=60)
 
 
 app = Flask(__name__)
@@ -60,17 +60,6 @@ def show_trains_approaching_station(station_id):
     return Response(json.dumps(train_info), mimetype="application/json")
 
 
-# "Branch": "Waterbury",
-# "Code": "168",
-# "Name": "Ansonia",
-# "Latitude": 41.34415,
-# "Longitude": -73.0799255,
-# "Type": "S",
-# "Branch_Id": 6,
-# "Location_Index": 162,
-# "Location_Id": 168
-
-
 @app.route("/all-stations/")
 def show_all_stations():
     all_trains = get_all_stations()
@@ -96,45 +85,3 @@ def show_train_info(train_number, station_id):
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)
-
-"""
-{
-  "LOC": "37",
-  "TIME": "07/15/2020 23:13:56",
-  "TRAINS": [
-    {
-      "SCHED": "7/15/2020 11:40:00 PM",
-      "TRAIN_ID": "8876",
-      "DEST": "33",
-      "STOPS": null,
-      "DIR": "I",
-      "TRACK": "2",
-      "ETA": "7/15/2020 11:40:00 PM",
-      "CD": 1563,
-      "SERVICE_STATUS": "Delayed"
-    },
-    {
-      "SCHED": "7/15/2020 11:47:00 PM",
-      "TRAIN_ID": "8867",
-      "DEST": "51",
-      "STOPS": null,
-      "DIR": "O",
-      "TRACK": "1",
-      "ETA": "7/15/2020 11:47:00 PM",
-      "CD": 1983,
-      "SERVICE_STATUS": "On Time"
-    },
-    {
-      "SCHED": "7/16/2020 12:34:00 AM",
-      "TRAIN_ID": "8898",
-      "DEST": "33",
-      "STOPS": null,
-      "DIR": "I",
-      "TRACK": "2",
-      "ETA": "7/16/2020 12:34:00 AM",
-      "CD": 4803,
-      "SERVICE_STATUS": "On Time"
-    }
-  ]
-}
-"""
