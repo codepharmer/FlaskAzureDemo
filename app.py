@@ -12,6 +12,12 @@ app = Flask(__name__)
 apiKey = os.getenv("API_TOKEN")
 
 
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 def get_trains_approaching(station_id):
     return requests.get(
         f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/trains/{station_id}/{apiKey}/"
