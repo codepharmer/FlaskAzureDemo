@@ -3,6 +3,11 @@ import requests
 import json
 import os
 
+from expiringdict import ExpiringDict
+
+cache = ExpiringDict(max_len=100, max_age_seconds=60)
+
+
 app = Flask(__name__)
 apiKey = os.getenv("API_TOKEN")
 
@@ -23,10 +28,12 @@ def get_train_info(train_number, station_id):
     all_info = requests.get(
         f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/train/{train_number}/{station_id}/{apiKey}/"
     ).json()
-    train_info = []
-    train_info.append(all_info["details"]["summary"])
-    train_info.append(all_info["consist"]["Cars"])
+    train_info = {}
+    train_info["id"] = all_info["train_num"]
+    train_info["summary"] = all_info["details"]["summary"]
+    train_info["cars"] = all_info["consist"]["Cars"]
     return train_info
+
 
 @app.route("/")
 def default():
@@ -35,14 +42,22 @@ def default():
 
 @app.route("/trains-approaching/<station_id>/")
 def show_trains_approaching_station(station_id):
-    train_info = get_trains_approaching(station_id)
+    train_info = get_trains_approaching(station_id).json()
     # add carinfo for each one of the trains
     # iterate through and get "TRAINS": [
     #   "SCHED":
     #   "TRAIN_ID"
-    trains_list = train_info.json()["TRAINS"]
-
-    return Response(train_info.text, mimetype="application/json")
+    trains_list = train_info["TRAINS"]
+    details_list = []
+    for train_obj in trains_list:
+        train_id = train_obj["TRAIN_ID"]
+        detail = cache.get(train_obj["TRAIN_ID"])
+        if detail is None:
+            detail = get_train_info(train_id, station_id)
+            cache[train_id] = detail
+        details_list.append(detail)
+    train_info["details"] = details_list
+    return Response(json.dumps(train_info), mimetype="application/json")
 
 
 # "Branch": "Waterbury",
