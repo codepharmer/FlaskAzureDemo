@@ -20,10 +20,13 @@ def get_all_stations():
 
 
 def get_train_info(train_number, station_id):
-    return requests.get(
+    all_info = requests.get(
         f"https://mnorthstg.prod.acquia-sites.com/wse/Mymnr/v5/api/train/{train_number}/{station_id}/{apiKey}/"
-    )
-
+    ).json()
+    train_info = []
+    train_info.append(all_info["details"]["summary"])
+    train_info.append(all_info["consist"]["Cars"])
+    return train_info
 
 @app.route("/")
 def default():
@@ -33,6 +36,12 @@ def default():
 @app.route("/trains-approaching/<station_id>/")
 def show_trains_approaching_station(station_id):
     train_info = get_trains_approaching(station_id)
+    # add carinfo for each one of the trains
+    # iterate through and get "TRAINS": [
+    #   "SCHED":
+    #   "TRAIN_ID"
+    trains_list = train_info.json()["TRAINS"]
+
     return Response(train_info.text, mimetype="application/json")
 
 
@@ -64,10 +73,50 @@ def show_all_stations():
 
 @app.route("/current-train-info/<train_number>/<station_id>/")
 def show_train_info(train_number, station_id):
-    train_info = get_train_info(train_number, station_id)
-    return Response(train_info.text, mimetype="application/json")
+    return Response(json.dumps(get_train_info(train_number, station_id)), mimetype="application/json")
 
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)
 
+"""
+{
+  "LOC": "37",
+  "TIME": "07/15/2020 23:13:56",
+  "TRAINS": [
+    {
+      "SCHED": "7/15/2020 11:40:00 PM",
+      "TRAIN_ID": "8876",
+      "DEST": "33",
+      "STOPS": null,
+      "DIR": "I",
+      "TRACK": "2",
+      "ETA": "7/15/2020 11:40:00 PM",
+      "CD": 1563,
+      "SERVICE_STATUS": "Delayed"
+    },
+    {
+      "SCHED": "7/15/2020 11:47:00 PM",
+      "TRAIN_ID": "8867",
+      "DEST": "51",
+      "STOPS": null,
+      "DIR": "O",
+      "TRACK": "1",
+      "ETA": "7/15/2020 11:47:00 PM",
+      "CD": 1983,
+      "SERVICE_STATUS": "On Time"
+    },
+    {
+      "SCHED": "7/16/2020 12:34:00 AM",
+      "TRAIN_ID": "8898",
+      "DEST": "33",
+      "STOPS": null,
+      "DIR": "I",
+      "TRACK": "2",
+      "ETA": "7/16/2020 12:34:00 AM",
+      "CD": 4803,
+      "SERVICE_STATUS": "On Time"
+    }
+  ]
+}
+"""
