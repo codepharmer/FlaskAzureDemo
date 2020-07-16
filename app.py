@@ -4,7 +4,7 @@ import json
 import os
 
 app = Flask(__name__)
-apiKey = os.getenv("API_TOKEN") or "9de8f3b1-1701-4229-8ebc-346914043f4a"
+apiKey = os.getenv("API_TOKEN")
 
 
 def get_trains_approaching(station_id):
@@ -73,7 +73,10 @@ def show_all_stations():
 
 @app.route("/current-train-info/<train_number>/<station_id>/")
 def show_train_info(train_number, station_id):
-    return Response(json.dumps(get_train_info(train_number, station_id)), mimetype="application/json")
+    return Response(
+        json.dumps(get_train_info(train_number, station_id)),
+        mimetype="application/json",
+    )
 
 
 if __name__ == "__main__":
